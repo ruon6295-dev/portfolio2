@@ -5,7 +5,7 @@ import { ChatMessage } from '../types';
 
 const AIConsultant: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: 'Hello! I am your AI assistant. Ask me anything about this platform or how to get started!' }
+    { role: 'model', text: 'Hey there! I am your ViteNext AI guide. Want to know how to deploy in 30 seconds or how we handle Hot Module Replacement?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -13,7 +13,10 @@ const AIConsultant: React.FC = () => {
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   }, [messages]);
 
@@ -26,44 +29,53 @@ const AIConsultant: React.FC = () => {
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setIsLoading(true);
 
-    const response = await geminiService.askAssistant(userMsg, "ViteNext is a template using React 18, Tailwind CSS, and Gemini AI. It's designed for Vercel deployment.");
+    const response = await geminiService.askAssistant(
+      userMsg, 
+      "ViteNext is a next-generation web application platform using React 19, Tailwind CSS, and Google Gemini 3.0. It focuses on developer experience, speed, and AI integration."
+    );
     
     setMessages(prev => [...prev, { role: 'model', text: response }]);
     setIsLoading(false);
   };
 
   return (
-    <section id="ai-consultant" className="py-24 relative">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>
-      
+    <section id="ai-consultant" className="py-24 bg-[#080a0f] relative overflow-hidden">
       <div className="container mx-auto px-6">
-        <div className="max-w-4xl mx-auto glass-card rounded-3xl overflow-hidden border-white/10 shadow-2xl flex flex-col md:flex-row">
-          <div className="md:w-1/3 bg-blue-600 p-8 flex flex-col justify-between">
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-4">Smart Assistant</h3>
-              <p className="text-blue-100 text-sm leading-relaxed mb-6">
-                Get instant answers to technical questions, setup guides, and project optimization tips.
+        <div className="text-center mb-16">
+          <h2 className="text-3xl lg:text-5xl font-bold mb-4 tracking-tight">Interactive <span className="text-blue-500">Assistance</span></h2>
+          <p className="text-gray-400 max-w-xl mx-auto">Skip the documentation. Ask our AI anything about building with ViteNext.</p>
+        </div>
+
+        <div className="max-w-5xl mx-auto glass-card rounded-[2rem] overflow-hidden border-white/10 shadow-3xl flex flex-col md:flex-row h-[600px]">
+          {/* Chat Sidebar */}
+          <div className="hidden md:flex md:w-1/3 bg-blue-600 p-10 flex-col justify-between relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
+            <div className="relative z-10">
+              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mb-6 shadow-lg backdrop-blur-sm">
+                <i className="fa-solid fa-wand-magic-sparkles text-white text-2xl"></i>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Smart Brain</h3>
+              <p className="text-blue-100 text-sm leading-relaxed opacity-80">
+                Experience real-time technical consulting. Our AI is trained on the latest Vite architecture and React 19 features.
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                <i className="fa-solid fa-brain text-white"></i>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-white">Powered by</p>
-                <p className="text-xs text-blue-200">Google Gemini 3.0</p>
-              </div>
+            <div className="relative z-10 space-y-4">
+               <div className="flex items-center gap-3 text-white/60 text-xs font-mono uppercase tracking-widest">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                  System Online
+               </div>
             </div>
           </div>
           
-          <div className="md:w-2/3 flex flex-col h-[500px]">
-            <div ref={scrollRef} className="flex-1 p-6 overflow-y-auto space-y-4">
+          {/* Main Chat Area */}
+          <div className="flex-1 flex flex-col bg-[#0b0e14]/50 backdrop-blur-xl">
+            <div ref={scrollRef} className="flex-1 p-8 overflow-y-auto space-y-6 scrollbar-hide">
               {messages.map((msg, idx) => (
-                <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] p-4 rounded-2xl text-sm ${
+                <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                  <div className={`max-w-[85%] p-5 rounded-2xl text-sm leading-relaxed ${
                     msg.role === 'user' 
-                      ? 'bg-blue-600 text-white rounded-tr-none' 
-                      : 'bg-white/10 text-gray-200 rounded-tl-none border border-white/5'
+                      ? 'bg-blue-600 text-white rounded-tr-none shadow-lg shadow-blue-500/10' 
+                      : 'bg-white/5 text-gray-200 rounded-tl-none border border-white/5'
                   }`}>
                     {msg.text}
                   </div>
@@ -71,32 +83,36 @@ const AIConsultant: React.FC = () => {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-white/5 p-4 rounded-2xl rounded-tl-none border border-white/5 flex gap-1">
-                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce"></span>
-                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce delay-75"></span>
-                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce delay-150"></span>
+                  <div className="bg-white/5 p-5 rounded-2xl rounded-tl-none border border-white/5 flex gap-2">
+                    <span className="w-2 h-2 bg-blue-500/50 rounded-full animate-bounce"></span>
+                    <span className="w-2 h-2 bg-blue-500/50 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                    <span className="w-2 h-2 bg-blue-500/50 rounded-full animate-bounce [animation-delay:0.4s]"></span>
                   </div>
                 </div>
               )}
             </div>
             
-            <form onSubmit={handleSubmit} className="p-4 border-t border-white/5 bg-white/2">
-              <div className="relative">
+            <div className="p-6 border-t border-white/5 bg-white/2">
+              <form onSubmit={handleSubmit} className="relative group">
                 <input 
                   type="text" 
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask something about ViteNext..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all pr-12"
+                  placeholder="Ask about Vite configurations or React tips..."
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all pr-14 placeholder:text-gray-600"
                 />
                 <button 
-                  disabled={isLoading}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-blue-500 hover:text-blue-400 transition-colors disabled:opacity-50"
+                  type="submit"
+                  disabled={isLoading || !input.trim()}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition-all disabled:opacity-30 disabled:grayscale active:scale-95"
                 >
-                  <i className="fa-solid fa-paper-plane"></i>
+                  <i className="fa-solid fa-arrow-up"></i>
                 </button>
-              </div>
-            </form>
+              </form>
+              <p className="text-[10px] text-center mt-4 text-gray-600 uppercase tracking-tighter">
+                Press Enter to send &bull; Powered by Gemini Flash
+              </p>
+            </div>
           </div>
         </div>
       </div>

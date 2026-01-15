@@ -11,18 +11,25 @@ export class GeminiService {
 
   async askAssistant(prompt: string, context?: string): Promise<string> {
     try {
-      const response = await this.ai.models.generateContent({
+      // Re-initialize for each call to ensure dynamic API key availability as per guidelines
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+      const response = await ai.models.generateContent({
         model: this.model,
-        contents: `Context about this website: ${context || 'A modern tech homepage'}. \n\nUser Question: ${prompt}`,
+        contents: [{ 
+          parts: [{ 
+            text: `Context: ${context || 'A modern Vite-like landing page called ViteNext'}. \nUser: ${prompt}` 
+          }] 
+        }],
         config: {
-          systemInstruction: "You are a helpful, professional AI assistant for a cutting-edge software development agency website. Keep answers concise and friendly.",
-          temperature: 0.7,
+          systemInstruction: "You are a helpful and technical assistant for ViteNext. You are concise, enthusiastic, and provide helpful advice on Vite, React, and AI integration.",
+          temperature: 0.8,
         }
       });
-      return response.text || "I'm sorry, I couldn't process that.";
+      
+      return response.text || "I'm sorry, I couldn't generate a response.";
     } catch (error) {
-      console.error("Gemini API Error:", error);
-      return "There was an error communicating with the AI. Please try again later.";
+      console.error("Gemini Assistant Error:", error);
+      return "I'm having trouble connecting to my brain right now. Please try again in a moment.";
     }
   }
 }
